@@ -12,12 +12,10 @@ interface EventTime {
   end: Datetime;
 }
 
-const formatTime = (datetime: Datetime) => {
-  const formattedHour =
-    datetime.hour < 10 ? `0${datetime.hour}` : `${datetime.hour}`;
-  const formattedMinute =
-    datetime.minute < 10 ? `0${datetime.minute}` : `${datetime.minute}`;
-  return `${formattedHour}:${formattedMinute}`;
+
+const formatTime = (time: number) => (time < 10 ? `0${time}` : `${time}`);
+const formatDateTime = (datetime: Datetime) => {
+  return `${formatTime(datetime.hour)}:${formatTime(datetime.minute)}`;
 };
 
 export default function Timeline() {
@@ -25,7 +23,7 @@ export default function Timeline() {
     start: undefined,
     end: undefined,
   });
-  const [timeUnit, setTimeUnit] = useState<number>(10);
+  const [timeUnit, setTimeUnit] = useState<number>(15);
   const [schedule, setSchedule] = useState<EventTime[]>([]);
 
   const handleTimeClick = (hour: number, minute: number) => {
@@ -41,8 +39,8 @@ export default function Timeline() {
   };
 
   return (
-    <div className="flex">
-      <div className="flex-1 p-4">
+    <>
+      <div>
         <label htmlFor="time-unit">Time Unit:</label>
         <select
           id="time-unit"
@@ -55,30 +53,49 @@ export default function Timeline() {
           <option value={10}>10</option>
           <option value={15}>15</option>
         </select>
-        <div>
-          {Array.from({ length: (24 * 60) / timeUnit }, (_, i) => {
-            const hour = Math.floor((i * timeUnit) / 60);
-            const minute = (i * timeUnit) % 60;
-            return (
-              <div
-                key={i}
-                onClick={() => handleTimeClick(hour, minute)}
-                className="my-2 cursor-pointer"
-              >
-                {formatTime({ hour, minute })}
-              </div>
-            );
-          })}
+      </div>
+      <div className="flex p-4">
+        <div className="flex-none p-4">
+          <div>
+            {Array.from({ length: 24 }, (_, hour) => {
+              return (
+                <div key={`hour-${hour}`}>
+                  <span
+                    onClick={() => handleTimeClick(hour, 0)}
+                    className="my-2 cursor-pointer"
+                  >
+                    {formatTime(hour)}
+                  </span>
+                  <span>
+                    {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
+                      const minute = minuteIndex * timeUnit;
+                      return (
+                        <div
+                          key={`hour-${hour}-minute-${minuteIndex}`}
+                          onClick={() => handleTimeClick(hour, minute)}
+                          className="cursor-pointer"
+                        >
+                          {formatTime(minute)}
+                        </div>
+                      );
+                    })}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+        <div className="grow p-4">
+          test
+          {schedule.map((item, i) => (
+            <div key={i}>
+              {`Schedule ${i + 1}: Start at ${formatDateTime(
+                item.start
+              )}, End at ${formatDateTime(item.end)}`}
+            </div>
+          ))}
         </div>
       </div>
-      <div className="flex-1 p-4">
-        <h2 className="mb-4">Schedule:</h2>
-        {schedule.map((item, i) => (
-          <div key={i}>
-            {`Schedule ${i + 1}: Start at ${formatTime(item.start)}, End at ${formatTime(item.end)}`}
-          </div>
-        ))}
-      </div>
-    </div>
+    </>
   );
 }
