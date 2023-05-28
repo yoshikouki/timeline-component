@@ -12,6 +12,10 @@ interface EventTime {
   end: Datetime;
 }
 
+interface Event extends EventTime {
+  id: number;
+}
+
 const formatTime = (time: number) => (time < 10 ? `0${time}` : `${time}`);
 const formatDateTime = (datetime: Datetime) => {
   return `${formatTime(datetime.hour)}:${formatTime(datetime.minute)}`;
@@ -23,7 +27,7 @@ export default function Timeline() {
     end: undefined,
   });
   const [timeUnit, setTimeUnit] = useState<number>(15);
-  const [schedule, setSchedule] = useState<EventTime[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
 
   const handleTimeClick = (hour: number, minute: number) => {
     const datetime: Datetime = { hour, minute };
@@ -32,7 +36,10 @@ export default function Timeline() {
       setTime({ ...time, start: datetime });
     } else if (!time.end) {
       setTime({ ...time, end: datetime });
-      setSchedule([...schedule, { start: time.start, end: datetime }]);
+      setEvents([
+        ...events,
+        { id: events.length + 1, start: time.start, end: datetime },
+      ]);
       setTime({ start: undefined, end: undefined });
     }
   };
@@ -54,7 +61,7 @@ export default function Timeline() {
         </select>
       </div>
 
-      <div className="relative h-full">
+      <div className="relative h-screen overflow-y-auto">
         <div className="grid auto-cols-auto grid-rows-24 gap-0 absolute w-full">
           {Array.from({ length: 24 }, (_, hour) => {
             return (
@@ -72,10 +79,7 @@ export default function Timeline() {
         <div className="grid auto-cols-auto grid-rows-24 absolute gap-0 w-full">
           {Array.from({ length: 24 }, (_, hour) => {
             return (
-              <div
-                key={`minute-${hour}`}
-                className="h-20 flex flex-col"
-              >
+              <div key={`minute-${hour}`} className="h-20 flex flex-col">
                 {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
                   const minute = minuteIndex * timeUnit;
                   return (
@@ -86,6 +90,28 @@ export default function Timeline() {
                     />
                   );
                 })}
+              </div>
+            );
+          })}
+        </div>
+
+        <div className="grid auto-cols-auto grid-rows-[288] absolute gap-0 w-full h-full ml-8">
+          {events.map((event) => {
+            const startRow =
+              (event.start.hour * 60 + event.start.minute) / 5 + 1;
+            const endRow =
+              Math.floor((event.end.hour * 60 + event.end.minute) / 5) + 1;
+
+            return (
+              <div
+                key={event.id}
+                className="border bg-blue-500 text-white"
+                style={{
+                  gridRowStart: startRow,
+                  gridRowEnd: endRow,
+                }}
+              >
+                {event.id}: event.title
               </div>
             );
           })}
