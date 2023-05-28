@@ -12,7 +12,6 @@ interface EventTime {
   end: Datetime;
 }
 
-
 const formatTime = (time: number) => (time < 10 ? `0${time}` : `${time}`);
 const formatDateTime = (datetime: Datetime) => {
   return `${formatTime(datetime.hour)}:${formatTime(datetime.minute)}`;
@@ -54,46 +53,42 @@ export default function Timeline() {
           <option value={15}>15</option>
         </select>
       </div>
-      <div className="flex p-4">
-        <div className="flex-none p-4">
-          <div>
-            {Array.from({ length: 24 }, (_, hour) => {
-              return (
-                <div key={`hour-${hour}`}>
-                  <span
-                    onClick={() => handleTimeClick(hour, 0)}
-                    className="my-2 cursor-pointer"
-                  >
-                    {formatTime(hour)}
-                  </span>
-                  <span>
-                    {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
-                      const minute = minuteIndex * timeUnit;
-                      return (
-                        <div
-                          key={`hour-${hour}-minute-${minuteIndex}`}
-                          onClick={() => handleTimeClick(hour, minute)}
-                          className="cursor-pointer"
-                        >
-                          {formatTime(minute)}
-                        </div>
-                      );
-                    })}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
+
+      <div className="relative h-full">
+        <div className="grid auto-cols-auto grid-rows-24 gap-0 absolute w-full">
+          {Array.from({ length: 24 }, (_, hour) => {
+            return (
+              <div
+                onClick={() => handleTimeClick(hour, 0)}
+                key={`hour-${hour}`}
+                className="h-20 border-t cursor-pointer "
+              >
+                {formatTime(hour)}
+              </div>
+            );
+          })}
         </div>
-        <div className="grow p-4">
-          test
-          {schedule.map((item, i) => (
-            <div key={i}>
-              {`Schedule ${i + 1}: Start at ${formatDateTime(
-                item.start
-              )}, End at ${formatDateTime(item.end)}`}
-            </div>
-          ))}
+
+        <div className="grid auto-cols-auto grid-rows-24 absolute gap-0 w-full">
+          {Array.from({ length: 24 }, (_, hour) => {
+            return (
+              <div
+                key={`minute-${hour}`}
+                className="h-20 flex flex-col"
+              >
+                {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
+                  const minute = minuteIndex * timeUnit;
+                  return (
+                    <div
+                      key={`hour-${hour}-minute-${minute}`}
+                      onClick={() => handleTimeClick(hour, minute)}
+                      className="cursor-pointer flex-grow"
+                    />
+                  );
+                })}
+              </div>
+            );
+          })}
         </div>
       </div>
     </>
