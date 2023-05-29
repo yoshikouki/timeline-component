@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 
+import { addMinutes } from "date-fns";
+
 interface Datetime {
   hour: number;
   minute: number;
@@ -21,6 +23,25 @@ const formatDateTime = (datetime: Datetime) => {
   return `${formatTime(datetime.hour)}:${formatTime(datetime.minute)}`;
 };
 
+const datetimeToJsDate = (datetime: Datetime) => {
+  const date = new Date();
+  date.setHours(datetime.hour);
+  date.setMinutes(datetime.minute);
+  return date;
+};
+
+const addMinutesToDatetime = (
+  datetime: Datetime,
+  minutesToAdd: number
+): Datetime => {
+  const jsDate = datetimeToJsDate(datetime);
+  const newJsDate = addMinutes(jsDate, minutesToAdd);
+  return {
+    hour: newJsDate.getHours(),
+    minute: newJsDate.getMinutes(),
+  };
+};
+
 export default function Timeline() {
   const [time, setTime] = useState<Partial<EventTime>>({
     start: undefined,
@@ -35,10 +56,11 @@ export default function Timeline() {
     if (!time.start) {
       setTime({ ...time, start: datetime });
     } else if (!time.end) {
-      setTime({ ...time, end: datetime });
+      const endDatetime = addMinutesToDatetime(datetime, timeUnit);
+      setTime({ ...time, end: endDatetime });
       setEvents([
         ...events,
-        { id: events.length + 1, start: time.start, end: datetime },
+        { id: events.length + 1, start: time.start, end: endDatetime },
       ]);
       setTime({ start: undefined, end: undefined });
     }
@@ -113,8 +135,7 @@ export default function Timeline() {
             })}
 
             {events.map((event) => {
-              const startRow =
-                (event.start.hour * 60 + event.start.minute) + 1;
+              const startRow = event.start.hour * 60 + event.start.minute + 1;
               const endRow =
                 Math.floor(event.end.hour * 60 + event.end.minute) + 1;
               const eventMinutes = startRow - endRow;
