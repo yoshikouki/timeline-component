@@ -61,60 +61,79 @@ export default function Timeline() {
         </select>
       </div>
 
-      <div className="relative h-screen overflow-y-auto">
-        <div className="grid auto-cols-auto grid-rows-24 gap-0 absolute w-full">
-          {Array.from({ length: 24 }, (_, hour) => {
-            return (
-              <div
-                onClick={() => handleTimeClick(hour, 0)}
-                key={`hour-${hour}`}
-                className="h-20 border-t cursor-pointer "
-              >
-                {formatTime(hour)}
-              </div>
-            );
-          })}
-        </div>
+      <div className="h-screen overflow-y-auto">
+        <div className="relative h-full">
+          <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full">
+            {Array.from({ length: 24 }, (_, hour) => {
+              return (
+                <div
+                  onClick={() => handleTimeClick(hour, 0)}
+                  key={`hour-${hour}`}
+                  className="border-t cursor-pointer row-span-60"
+                  style={{ height: 60 }}
+                >
+                  {formatTime(hour)}
+                </div>
+              );
+            })}
+          </div>
 
-        <div className="grid auto-cols-auto grid-rows-24 absolute gap-0 w-full">
-          {Array.from({ length: 24 }, (_, hour) => {
-            return (
-              <div key={`minute-${hour}`} className="h-20 flex flex-col">
-                {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
-                  const minute = minuteIndex * timeUnit;
-                  return (
-                    <div
-                      key={`hour-${hour}-minute-${minute}`}
-                      onClick={() => handleTimeClick(hour, minute)}
-                      className="cursor-pointer flex-grow"
-                    />
-                  );
-                })}
-              </div>
-            );
-          })}
-        </div>
+          <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full">
+            {Array.from({ length: 24 }, (_, hour) => {
+              return (
+                <div
+                  key={`minute-${hour}`}
+                  className="flex flex-col row-span-60"
+                  style={{ height: 60 }}
+                >
+                  {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
+                    const minute = minuteIndex * timeUnit;
+                    return (
+                      <div
+                        key={`hour-${hour}-minute-${minute}`}
+                        onClick={() => handleTimeClick(hour, minute)}
+                        className="cursor-pointer flex-grow"
+                      />
+                    );
+                  })}
+                </div>
+              );
+            })}
+          </div>
 
-        <div className="grid auto-cols-auto grid-rows-[288] absolute gap-0 w-full h-full ml-8">
-          {events.map((event) => {
-            const startRow =
-              (event.start.hour * 60 + event.start.minute) / 5 + 1;
-            const endRow =
-              Math.floor((event.end.hour * 60 + event.end.minute) / 5) + 1;
+          <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full pl-8 pointer-events-none">
+            {Array.from({ length: 1440 }, (_, i) => {
+              return (
+                <div
+                  key={i}
+                  className="col-start-1 row-span-60 pointer-events-none"
+                  style={{ height: 1 }}
+                />
+              );
+            })}
 
-            return (
-              <div
-                key={event.id}
-                className="border bg-blue-500 text-white"
-                style={{
-                  gridRowStart: startRow,
-                  gridRowEnd: endRow,
-                }}
-              >
-                {event.id}: event.title
-              </div>
-            );
-          })}
+            {events.map((event) => {
+              const startRow =
+                (event.start.hour * 60 + event.start.minute) + 1;
+              const endRow =
+                Math.floor(event.end.hour * 60 + event.end.minute) + 1;
+              const eventMinutes = startRow - endRow;
+
+              return (
+                <div
+                  key={event.id}
+                  className="col-start-2 border bg-blue-500 text-white pointer-events-auto"
+                  style={{
+                    gridRowStart: startRow,
+                    gridRowEnd: endRow,
+                    height: eventMinutes,
+                  }}
+                >
+                  {event.id}: event.title
+                </div>
+              );
+            })}
+          </div>
         </div>
       </div>
     </>
