@@ -95,7 +95,7 @@ export default function Timeline() {
                   onClick={() => handleTimeClick(hour, 0)}
                   key={`hour-${hour}`}
                   className="border-t cursor-pointer row-span-60"
-                  style={{ height: 60 }}
+                  style={{ height: 120 }}
                 >
                   {formatTime(hour)}
                 </div>
@@ -109,7 +109,7 @@ export default function Timeline() {
                 <div
                   key={`minute-${hour}`}
                   className="flex flex-col row-span-60"
-                  style={{ height: 60 }}
+                  style={{ height: 120 }}
                 >
                   {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
                     const minute = minuteIndex * timeUnit;
@@ -132,7 +132,7 @@ export default function Timeline() {
                 <div
                   key={i}
                   className="col-start-1 row-span-60 pointer-events-none"
-                  style={{ height: 1 }}
+                  style={{ height: 2 }}
                 />
               );
             })}
