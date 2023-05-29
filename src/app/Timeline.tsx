@@ -29,6 +29,9 @@ const datetimeToJsDate = (datetime: Datetime) => {
   date.setMinutes(datetime.minute);
   return date;
 };
+const datetimeToMinutes = (datetime: Datetime) => {
+  return datetime.hour * 60 + datetime.minute;
+}
 
 const addMinutesToDatetime = (
   datetime: Datetime,
@@ -135,19 +138,16 @@ export default function Timeline() {
             })}
 
             {events.map((event) => {
-              const startRow = event.start.hour * 60 + event.start.minute + 1;
-              const endRow =
-                Math.floor(event.end.hour * 60 + event.end.minute) + 1;
-              const eventMinutes = startRow - endRow;
+              const startRow = datetimeToMinutes(event.start) + 1;
+              const endRow = Math.floor(datetimeToMinutes(event.end)) + 1;
 
               return (
                 <div
                   key={event.id}
-                  className="col-start-2 border bg-blue-500 text-white pointer-events-auto"
+                  className="col-start-2 border bg-blue-500 text-white pointer-events-auto px-4"
                   style={{
                     gridRowStart: startRow,
                     gridRowEnd: endRow,
-                    height: eventMinutes,
                   }}
                 >
                   {event.id}: event.title
