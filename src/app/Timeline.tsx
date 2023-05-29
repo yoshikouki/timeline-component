@@ -137,6 +137,16 @@ export default function Timeline() {
               );
             })}
 
+            {time.start && (
+              <div
+                className="col-start-2 border bg-blue-500 opacity-60 text-white pointer-events-auto"
+                style={{
+                  gridRowStart: datetimeToMinutes(time.start) + 1,
+                  gridRowEnd: datetimeToMinutes(time.start) + timeUnit,
+                }}
+              />
+            )}
+
             {events.map((event) => {
               const startRow = datetimeToMinutes(event.start) + 1;
               const endRow = Math.floor(datetimeToMinutes(event.end)) + 1;
