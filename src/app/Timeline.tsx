@@ -63,17 +63,14 @@ export default function Timeline() {
             )}
           </div>
 
-          <div
-            className="pl-16 pointer-events-none"
-            style={{ height: 1440 * minuteHeight }}
-          >
+          <div className="pl-[20%] pointer-events-none w-full">
             {events.map((event) => {
               const startMinutes = datetimeToMinutes(event.start);
               const endMinutes = datetimeToMinutes(event.end);
               return (
                 <div
                   key={event.id}
-                  className="border bg-blue-500 text-white pointer-events-auto px-4 absolute w-full"
+                  className="border bg-blue-500 text-white pointer-events-auto px-4 absolute w-4/5"
                   style={{
                     top: startMinutes * minuteHeight,
                     height: (endMinutes - startMinutes) * minuteHeight,
@@ -86,7 +83,7 @@ export default function Timeline() {
 
             {newEventPeriod.start && (
               <div
-                className="border bg-blue-500 opacity-60 text-white absolute pointer-events-auto w-full"
+                className="border bg-blue-500 opacity-60 text-white absolute pointer-events-auto w-4/5"
                 style={{
                   top: datetimeToMinutes(newEventPeriod.start) * minuteHeight,
                   height: intervalMinutes * minuteHeight,
