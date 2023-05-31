@@ -8,12 +8,12 @@ interface Datetime {
   minute: number;
 }
 
-interface EventTime {
+interface EventPeriod {
   start: Datetime;
   end: Datetime;
 }
 
-interface Event extends EventTime {
+interface Event extends EventPeriod {
   id: number;
 }
 
@@ -42,44 +42,44 @@ const addMinutesToDatetime = (
 };
 
 export default function Timeline() {
-  const [time, setTime] = useState<Partial<EventTime>>({
+  const [newEventPeriod, setNewEventPeriod] = useState<Partial<EventPeriod>>({
     start: undefined,
     end: undefined,
   });
-  const [timeUnit, setTimeUnit] = useState<number>(15);
+  const [intervalMinutes, setIntervalMinutes] = useState<number>(15);
   const [events, setEvents] = useState<Event[]>([]);
 
-  const handleTimeClick = (hour: number, minute: number) => {
+  const handleTimelineClick = (hour: number, minute: number) => {
     const clickedDatetime: Datetime = { hour, minute };
-    let newTime: Partial<EventTime> = { start: undefined, end: undefined };
-    if (!time.start) {
+    let newTime: Partial<EventPeriod> = { start: undefined, end: undefined };
+    if (!newEventPeriod.start) {
       newTime = { start: clickedDatetime, end: undefined };
-    } else if (!time.end) {
-      const storedMinutes = datetimeToMinutes(time.start);
+    } else if (!newEventPeriod.end) {
+      const storedMinutes = datetimeToMinutes(newEventPeriod.start);
       const clickedMinutes = datetimeToMinutes(clickedDatetime);
-      const newEventDatetime: EventTime =
+      const newEventDatetime: EventPeriod =
         storedMinutes <= clickedMinutes
           ? {
-              start: time.start,
-              end: addMinutesToDatetime(clickedDatetime, timeUnit),
+              start: newEventPeriod.start,
+              end: addMinutesToDatetime(clickedDatetime, intervalMinutes),
             }
           : {
               start: clickedDatetime,
-              end: addMinutesToDatetime(time.start, timeUnit),
+              end: addMinutesToDatetime(newEventPeriod.start, intervalMinutes),
             };
       setEvents([...events, { id: events.length + 1, ...newEventDatetime }]);
     }
-    setTime(newTime);
+    setNewEventPeriod(newTime);
   };
 
   return (
     <>
       <div className="mt-4 mb-8 px-4">
-        <label htmlFor="time-unit">Time Unit:</label>
+        <label htmlFor="time-unit">時間単位:</label>
         <select
           id="time-unit"
-          value={timeUnit}
-          onChange={(e) => setTimeUnit(Number(e.target.value))}
+          value={intervalMinutes}
+          onChange={(e) => setIntervalMinutes(Number(e.target.value))}
           className="ml-2"
         >
           <option value={1}>1</option>
@@ -95,7 +95,7 @@ export default function Timeline() {
             {Array.from({ length: 24 }, (_, hour) => {
               return (
                 <div
-                  onClick={() => handleTimeClick(hour, 0)}
+                  onClick={() => handleTimelineClick(hour, 0)}
                   key={`hour-${hour}`}
                   className="border-t cursor-pointer row-span-60 px-4 py-2"
                   style={{ height: 120 }}
@@ -114,12 +114,12 @@ export default function Timeline() {
                   className="flex flex-col row-span-60"
                   style={{ height: 120 }}
                 >
-                  {Array.from({ length: 60 / timeUnit }, (_, minuteIndex) => {
-                    const minute = minuteIndex * timeUnit;
+                  {Array.from({ length: 60 / intervalMinutes }, (_, minuteIndex) => {
+                    const minute = minuteIndex * intervalMinutes;
                     return (
                       <div
                         key={`hour-${hour}-minute-${minute}`}
-                        onClick={() => handleTimeClick(hour, minute)}
+                        onClick={() => handleTimelineClick(hour, minute)}
                         className="cursor-pointer flex-grow"
                       />
                     );
@@ -140,12 +140,12 @@ export default function Timeline() {
               );
             })}
 
-            {time.start && (
+            {newEventPeriod.start && (
               <div
                 className="col-start-2 border bg-blue-500 opacity-60 text-white pointer-events-auto"
                 style={{
-                  gridRowStart: datetimeToMinutes(time.start) + 1,
-                  gridRowEnd: datetimeToMinutes(time.start) + timeUnit,
+                  gridRowStart: datetimeToMinutes(newEventPeriod.start) + 1,
+                  gridRowEnd: datetimeToMinutes(newEventPeriod.start) + intervalMinutes,
                 }}
               />
             )}
