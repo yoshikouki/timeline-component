@@ -29,7 +29,7 @@ export default function Timeline() {
       </div>
 
       <div className="h-screen overflow-y-auto">
-        <div className="relative h-full">
+        <div className="relative">
           <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full">
             {Array.from({ length: 24 }, (_, hour) => {
               return (
@@ -63,45 +63,36 @@ export default function Timeline() {
             )}
           </div>
 
-          <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full pl-8 pointer-events-none">
-            {Array.from({ length: 1440 }, (_, i) => {
+          <div
+            className="pl-16 pointer-events-none"
+            style={{ height: 1440 * minuteHeight }}
+          >
+            {events.map((event) => {
+              const startMinutes = datetimeToMinutes(event.start);
+              const endMinutes = datetimeToMinutes(event.end);
               return (
                 <div
-                  key={i}
-                  className="col-start-1 row-span-60 pointer-events-none"
-                  style={{ height: 2 }}
-                />
+                  key={event.id}
+                  className="border bg-blue-500 text-white pointer-events-auto px-4 absolute w-full"
+                  style={{
+                    top: startMinutes * minuteHeight,
+                    height: (endMinutes - startMinutes) * minuteHeight,
+                  }}
+                >
+                  {event.id}: {startMinutes} - {endMinutes}
+                </div>
               );
             })}
 
             {newEventPeriod.start && (
               <div
-                className="col-start-2 border bg-blue-500 opacity-60 text-white pointer-events-auto"
+                className="border bg-blue-500 opacity-60 text-white absolute pointer-events-auto w-full"
                 style={{
-                  gridRowStart: datetimeToMinutes(newEventPeriod.start) + 1,
-                  gridRowEnd:
-                    datetimeToMinutes(newEventPeriod.start) + intervalMinutes,
+                  top: datetimeToMinutes(newEventPeriod.start) * minuteHeight,
+                  height: intervalMinutes * minuteHeight,
                 }}
               />
             )}
-
-            {events.map((event) => {
-              const startRow = datetimeToMinutes(event.start) + 1;
-              const endRow = Math.floor(datetimeToMinutes(event.end)) + 1;
-
-              return (
-                <div
-                  key={event.id}
-                  className="col-start-2 border bg-blue-500 text-white pointer-events-auto px-4"
-                  style={{
-                    gridRowStart: startRow,
-                    gridRowEnd: endRow,
-                  }}
-                >
-                  {event.id}: event.title
-                </div>
-              );
-            })}
           </div>
         </div>
       </div>
