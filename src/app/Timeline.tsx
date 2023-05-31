@@ -91,7 +91,7 @@ export default function Timeline() {
 
   return (
     <>
-      <div>
+      <div className="mt-4 mb-8 px-4">
         <label htmlFor="time-unit">Time Unit:</label>
         <select
           id="time-unit"
@@ -114,7 +114,7 @@ export default function Timeline() {
                 <div
                   onClick={() => handleTimeClick(hour, 0)}
                   key={`hour-${hour}`}
-                  className="border-t cursor-pointer row-span-60"
+                  className="border-t cursor-pointer row-span-60 px-4 py-2"
                   style={{ height: 120 }}
                 >
                   {formatTime(hour)}
