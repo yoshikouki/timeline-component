@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { addMinutes, subMinutes } from "date-fns";
+import { addMinutes } from "date-fns";
+import { useState } from "react";
 
 interface Datetime {
   hour: number;
@@ -18,9 +18,6 @@ interface Event extends EventTime {
 }
 
 const formatTime = (time: number) => (time < 10 ? `0${time}` : `${time}`);
-const formatDateTime = (datetime: Datetime) => {
-  return `${formatTime(datetime.hour)}:${formatTime(datetime.minute)}`;
-};
 
 const datetimeToJsDate = (datetime: Datetime) => {
   const date = new Date();
@@ -30,7 +27,7 @@ const datetimeToJsDate = (datetime: Datetime) => {
 };
 const datetimeToMinutes = (datetime: Datetime) => {
   return datetime.hour * 60 + datetime.minute;
-}
+};
 
 const addMinutesToDatetime = (
   datetime: Datetime,
@@ -38,17 +35,6 @@ const addMinutesToDatetime = (
 ): Datetime => {
   const jsDate = datetimeToJsDate(datetime);
   const newJsDate = addMinutes(jsDate, minutesToAdd);
-  return {
-    hour: newJsDate.getHours(),
-    minute: newJsDate.getMinutes(),
-  };
-};
-const subMinutesToDatetime = (
-  datetime: Datetime,
-  minutesToAdd: number
-): Datetime => {
-  const jsDate = datetimeToJsDate(datetime);
-  const newJsDate = subMinutes(jsDate, minutesToAdd);
   return {
     hour: newJsDate.getHours(),
     minute: newJsDate.getMinutes(),
@@ -65,28 +51,25 @@ export default function Timeline() {
 
   const handleTimeClick = (hour: number, minute: number) => {
     const clickedDatetime: Datetime = { hour, minute };
+    let newTime: Partial<EventTime> = { start: undefined, end: undefined };
     if (!time.start) {
-      setTime({ ...time, start: clickedDatetime });
+      newTime = { start: clickedDatetime, end: undefined };
     } else if (!time.end) {
-      let newEventDatetime: EventTime
       const storedMinutes = datetimeToMinutes(time.start);
       const clickedMinutes = datetimeToMinutes(clickedDatetime);
-      if (storedMinutes <= clickedMinutes) {
-        newEventDatetime = {
-          start: time.start,
-          end: addMinutesToDatetime(clickedDatetime, timeUnit),
-        };
-      } else {
-        newEventDatetime = {
-          start: clickedDatetime,
-          end: addMinutesToDatetime(time.start, timeUnit),
-        };
-      }
+      const newEventDatetime: EventTime =
+        storedMinutes <= clickedMinutes
+          ? {
+              start: time.start,
+              end: addMinutesToDatetime(clickedDatetime, timeUnit),
+            }
+          : {
+              start: clickedDatetime,
+              end: addMinutesToDatetime(time.start, timeUnit),
+            };
       setEvents([...events, { id: events.length + 1, ...newEventDatetime }]);
-      setTime({ start: undefined, end: undefined });
-    } else {
-      setTime({ start: undefined, end: undefined });
     }
+    setTime(newTime);
   };
 
   return (
