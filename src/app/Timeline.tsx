@@ -9,6 +9,7 @@ export default function Timeline() {
   const [intervalMinutes, setIntervalMinutes] = useState<number>(15);
   const { newEventPeriod, events, processTimeSelection } =
     useEventManagement(intervalMinutes);
+  const minuteHeight = 2;
 
   return (
     <>
@@ -33,10 +34,9 @@ export default function Timeline() {
             {Array.from({ length: 24 }, (_, hour) => {
               return (
                 <div
-                  onClick={() => processTimeSelection({ hour, minute: 0 })}
                   key={`hour-${hour}`}
                   className="border-t cursor-pointer row-span-60 px-4 py-2"
-                  style={{ height: 120 }}
+                  style={{ height: 60 * minuteHeight }}
                 >
                   {formatToTwoDigitTime(hour)}
                 </div>
@@ -45,29 +45,22 @@ export default function Timeline() {
           </div>
 
           <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full">
-            {Array.from({ length: 24 }, (_, hour) => {
-              return (
-                <div
-                  key={`minute-${hour}`}
-                  className="flex flex-col row-span-60"
-                  style={{ height: 120 }}
-                >
-                  {Array.from(
-                    { length: 60 / intervalMinutes },
-                    (_, minuteIndex) => {
-                      const minute = minuteIndex * intervalMinutes;
-                      return (
-                        <div
-                          key={`hour-${hour}-minute-${minute}`}
-                          onClick={() => processTimeSelection({ hour, minute })}
-                          className="cursor-pointer flex-grow"
-                        />
-                      );
-                    }
-                  )}
-                </div>
-              );
-            })}
+            {Array.from(
+              { length: (60 / intervalMinutes) * 24 },
+              (_, intervalIndex) => {
+                const minutesIn24 = intervalIndex * intervalMinutes;
+                const hour = Math.floor(minutesIn24 / 60);
+                const minute = minutesIn24 % 60;
+                return (
+                  <div
+                    key={intervalIndex}
+                    onClick={() => processTimeSelection({ hour, minute })}
+                    className="cursor-pointer flex-grow"
+                    style={{ height: intervalMinutes * minuteHeight }}
+                  />
+                );
+              }
+            )}
           </div>
 
           <div className="absolute grid auto-cols-auto grid-rows-[1440] gap-0 w-full pl-8 pointer-events-none">
