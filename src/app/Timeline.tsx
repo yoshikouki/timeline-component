@@ -1,8 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-
-import { addMinutes } from "date-fns";
+import { addMinutes, subMinutes } from "date-fns";
 
 interface Datetime {
   hour: number;
@@ -44,6 +43,17 @@ const addMinutesToDatetime = (
     minute: newJsDate.getMinutes(),
   };
 };
+const subMinutesToDatetime = (
+  datetime: Datetime,
+  minutesToAdd: number
+): Datetime => {
+  const jsDate = datetimeToJsDate(datetime);
+  const newJsDate = subMinutes(jsDate, minutesToAdd);
+  return {
+    hour: newJsDate.getHours(),
+    minute: newJsDate.getMinutes(),
+  };
+};
 
 export default function Timeline() {
   const [time, setTime] = useState<Partial<EventTime>>({
@@ -54,17 +64,27 @@ export default function Timeline() {
   const [events, setEvents] = useState<Event[]>([]);
 
   const handleTimeClick = (hour: number, minute: number) => {
-    const datetime: Datetime = { hour, minute };
-
+    const clickedDatetime: Datetime = { hour, minute };
     if (!time.start) {
-      setTime({ ...time, start: datetime });
+      setTime({ ...time, start: clickedDatetime });
     } else if (!time.end) {
-      const endDatetime = addMinutesToDatetime(datetime, timeUnit);
-      setTime({ ...time, end: endDatetime });
-      setEvents([
-        ...events,
-        { id: events.length + 1, start: time.start, end: endDatetime },
-      ]);
+      let newEventDatetime: EventTime
+      const storedMinutes = datetimeToMinutes(time.start);
+      const clickedMinutes = datetimeToMinutes(clickedDatetime);
+      if (storedMinutes <= clickedMinutes) {
+        newEventDatetime = {
+          start: time.start,
+          end: addMinutesToDatetime(clickedDatetime, timeUnit),
+        };
+      } else {
+        newEventDatetime = {
+          start: clickedDatetime,
+          end: addMinutesToDatetime(time.start, timeUnit),
+        };
+      }
+      setEvents([...events, { id: events.length + 1, ...newEventDatetime }]);
+      setTime({ start: undefined, end: undefined });
+    } else {
       setTime({ start: undefined, end: undefined });
     }
   };
